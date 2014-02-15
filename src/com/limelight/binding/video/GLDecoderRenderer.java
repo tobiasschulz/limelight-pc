@@ -53,7 +53,9 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         glcanvas = new GLCanvas(glcapabilities);
     }
 
-    public void setup(int width, int height, int redrawRate, Object renderTarget, int drFlags) {
+
+     public void setup(int width, int height, int redrawRate, Object renderTarget, int drFlags) {
+
         this.targetFps = redrawRate;
         this.width = width;
         this.height = height;
@@ -101,19 +103,27 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         animator = new FPSAnimator(glcanvas, targetFps);
     }
 
-    public void start() {
+
+     public void start() {
+
         animator.start();
     }
 
 
+
+    
     public void reshape(GLAutoDrawable glautodrawable, int x, int y, int width, int height) {
     }
 
+    
     public void init(GLAutoDrawable glautodrawable) {
     }
 
+    
     public void dispose(GLAutoDrawable glautodrawable) {
     }
+
+    
 
     public void display(GLAutoDrawable glautodrawable) {
         // Decode the image
@@ -166,7 +176,9 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     /**
      * Releases resources held by the decoder.
      */
-    public void release() {
+
+     public void release() {
+
         AvcDecoder.destroy();
     }
 
@@ -177,7 +189,9 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
      * @param decodeUnit the unit to be decoded
      * @return true if the unit was decoded successfully, false otherwise
      */
-    public boolean submitDecodeUnit(DecodeUnit decodeUnit) {
+
+     public boolean submitDecodeUnit(DecodeUnit decodeUnit) {
+
         byte[] data;
 
         // Use the reserved decoder buffer if this decode unit will fit
@@ -205,7 +219,8 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     /**
      * Stops the decoding and rendering of the video stream.
      */
-    public void stop() {
+
+     public void stop() {
         animator.stop();
     }
 }

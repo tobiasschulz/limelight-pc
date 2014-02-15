@@ -41,7 +41,11 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 	 * @param renderTarget what to render the video onto
 	 * @param drFlags flags for the decoder and renderer
 	 */
+<<<<<<< HEAD
 	public void setup(int width, int height, int redrawRate, Object renderTarget, int drFlags) {
+=======
+	 public void setup(int width, int height, int redrawRate, Object renderTarget, int drFlags) {
+>>>>>>> fixed
 		this.targetFps = redrawRate;
 		this.width = width;
 		this.height = height;
@@ -107,9 +111,13 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 	/**
 	 * Starts the decoding and rendering of the video stream on a new thread
 	 */
+<<<<<<< HEAD
 	public void start() {
+=======
+	 public void start() {
+>>>>>>> fixed
 		rendererThread = new Thread() {
-			@Override
+			
 			public void run() {
 				long nextFrameTime = System.currentTimeMillis();
 				int[] imageBuffer = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
@@ -174,7 +182,11 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 	/**
 	 * Stops the decoding and rendering of the video stream.
 	 */
+<<<<<<< HEAD
 	public void stop() {
+=======
+	 public void stop() {
+>>>>>>> fixed
 		rendererThread.interrupt();
 
 		try {
@@ -185,7 +197,11 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 	/**
 	 * Releases resources held by the decoder.
 	 */
+<<<<<<< HEAD
 	public void release() {
+=======
+	 public void release() {
+>>>>>>> fixed
 		AvcDecoder.destroy();
 	}
 
@@ -194,7 +210,11 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 	 * @param decodeUnit the unit to be decoded
 	 * @return true if the unit was decoded successfully, false otherwise
 	 */
+<<<<<<< HEAD
 	public boolean submitDecodeUnit(DecodeUnit decodeUnit) {
+=======
+	 public boolean submitDecodeUnit(DecodeUnit decodeUnit) {
+>>>>>>> fixed
 		byte[] data;
 
 		// Use the reserved decoder buffer if this decode unit will fit
