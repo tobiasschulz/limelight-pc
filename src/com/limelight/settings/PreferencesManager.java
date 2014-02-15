@@ -93,7 +93,7 @@ public abstract class PreferencesManager {
 			this.res = res;
 			this.fullscreen = fullscreen;
 			this.readonly = readonly;
-			this.host = "192.168.224.150";
+			this.host = "192.168.224.151";
 		}
 		
 		/**

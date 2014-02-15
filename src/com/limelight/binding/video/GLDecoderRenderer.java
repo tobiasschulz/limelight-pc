@@ -45,6 +45,8 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     protected final GLCapabilities glcapabilities;
     protected final GLCanvas       glcanvas;
     private         FPSAnimator    animator;
+    
+    public static Point WindowSize = new Point(1366, 768);
 
     public GLDecoderRenderer() {
         GLProfile.initSingleton();
@@ -82,7 +84,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         System.out.println("Using OpenGL rendering");
 
         // Add canvas to the frame
-        glcanvas.setSize(width, height);
+        glcanvas.setSize(WindowSize.x, WindowSize.y);
         glcanvas.addGLEventListener(this);
 
         for (MouseListener m : frame.getMouseListeners()) {
@@ -99,6 +101,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
 
         frame.setLayout(null);
         frame.add(glcanvas, 0, 0);
+        frame.setSize(WindowSize.x, WindowSize.y);
 
         animator = new FPSAnimator(glcanvas, targetFps);
     }
