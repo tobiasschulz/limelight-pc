@@ -344,11 +344,10 @@ public class Limelight implements NvConnectionListener {
 	}
 	
 	private void resumeSession() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
+		int n = JOptionPane.showConfirmDialog(limeFrame, "Reconnect?", "Reconnect", JOptionPane.YES_NO_OPTION);
+		if (n == JOptionPane.YES_OPTION) {
+			createInstance(lastHost);
 		}
-		createInstance(lastHost);
 	}
 
 	/**
