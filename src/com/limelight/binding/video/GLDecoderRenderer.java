@@ -94,7 +94,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         	glcanvas.setSize((int)screenSize.getWidth(),(int) screenSize.getHeight());
         }
         else{
-        	glcanvas.setSize(width,height);
+        	glcanvas.setSize(width * (height-90)/height, height-90);
         }
         glcanvas.addGLEventListener(this);
         
