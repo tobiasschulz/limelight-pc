@@ -25,6 +25,7 @@ public class PreferencesFrame extends JFrame {
 	private JComboBox resolution;
 	private JCheckBox fullscreen;
 	private JCheckBox readonly;
+	private JCheckBox useOpenGlRenderer;
 	private Preferences prefs;
 	
 	/**
@@ -57,8 +58,12 @@ public class PreferencesFrame extends JFrame {
 		fullscreen = new JCheckBox("Fullscreen");
 		fullscreen.setSelected(prefs.getFullscreen());
 		
+
 		readonly = new JCheckBox("Readonly");
 		readonly.setSelected(prefs.getReadonly());
+
+		useOpenGlRenderer = new JCheckBox("Use OpenGL Renderer");
+		useOpenGlRenderer.setSelected(prefs.getUseOpenGlRenderer());
 	
 		Box resolutionBox = Box.createHorizontalBox();
 		resolutionBox.add(Box.createHorizontalGlue());
@@ -70,15 +75,24 @@ public class PreferencesFrame extends JFrame {
 		fullscreenBox.add(fullscreen);
 		fullscreenBox.add(Box.createHorizontalGlue());
 		
+
 		Box readonlyBox = Box.createHorizontalBox();
 		readonlyBox.add(Box.createHorizontalGlue());
 		readonlyBox.add(readonly);
 		readonlyBox.add(Box.createHorizontalGlue());
+
+		Box useOpenGlRendererBox = Box.createHorizontalBox();
+		useOpenGlRendererBox.add(Box.createHorizontalGlue());
+		useOpenGlRendererBox.add(useOpenGlRenderer);
+		useOpenGlRendererBox.add(Box.createHorizontalGlue());
+
 		
 		mainPanel.add(Box.createVerticalStrut(10));
 		mainPanel.add(resolutionBox);
 		mainPanel.add(Box.createVerticalStrut(5));
 		mainPanel.add(fullscreenBox);
+		mainPanel.add(Box.createVerticalStrut(10));
+		mainPanel.add(useOpenGlRendererBox);
 		mainPanel.add(Box.createVerticalGlue());
 		mainPanel.add(readonlyBox);
 		mainPanel.add(Box.createVerticalGlue());
@@ -108,7 +122,11 @@ public class PreferencesFrame extends JFrame {
 	private boolean prefsChanged() {
 		return (prefs.getResolution() != resolution.getSelectedItem()) ||
 				(prefs.getFullscreen() != fullscreen.isSelected()) ||
-				(prefs.getReadonly() != readonly.isSelected());
+
+				(prefs.getReadonly() != readonly.isSelected()) ||
+
+				(prefs.getUseOpenGlRenderer() != useOpenGlRenderer.isSelected());
+
 	}
 	
 	/*
@@ -117,7 +135,11 @@ public class PreferencesFrame extends JFrame {
 	private void writePreferences() {
 		prefs.setFullscreen(fullscreen.isSelected());
 		prefs.setResolution((Resolution)resolution.getSelectedItem());
+
 		prefs.setReadonly(readonly.isSelected());
+
+		prefs.setUseOpenGlRenderer(useOpenGlRenderer.isSelected());
+
 		PreferencesManager.writePreferences(prefs);
 	}
 	

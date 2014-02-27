@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import com.limelight.LimeLog;
 import com.limelight.Limelight;
 import com.limelight.input.KeyboardHandler;
 import com.limelight.input.MouseHandler;
@@ -98,6 +99,12 @@ public class StreamFrame extends JFrame {
 		this.addKeyListener(keyboard);
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
+		
+		this.setFocusable(true);
+		this.setFocusableWindowState(true);
+		this.setAutoRequestFocus(true);
+		
+		this.enableInputMethods(true);
 
 		this.setFocusTraversalKeysEnabled(false);
 
@@ -108,10 +115,19 @@ public class StreamFrame extends JFrame {
 		this.getRootPane().setBackground(Color.BLACK);
 
 		this.addWindowListener(createWindowListener());
+		
+		this.setIgnoreRepaint(true);
+		
+		if (fullscreen) {
+			//makeFullScreen(streamConfig);
+			
+			// OS X hack for full-screen losing focus
+			if (System.getProperty("os.name").contains("Mac OS X")) {
+				this.setVisible(false);
+				this.setVisible(true);
+			}
+		}
 
-		// if (fullscreen) {
-		// makeFullScreen(streamConfig);
-		// }
 
 		hideCursor();
 		this.setVisible(true);
@@ -167,14 +183,14 @@ public class StreamFrame extends JFrame {
 		}
 
 		if (bestConfig != null) {
-			System.out.println("Using full-screen display mode " + bestConfig.getWidth() + "x"
-					+ bestConfig.getHeight() + " for " + targetConfig.getWidth() + "x"
-					+ targetConfig.getHeight() + " stream");
+
+			LimeLog.info("Using full-screen display mode "+bestConfig.getWidth()+"x"+bestConfig.getHeight()+
+					" for "+targetConfig.getWidth()+"x"+targetConfig.getHeight()+" stream");
 		} else {
 			bestConfig = aspectMatchingConfigs.get(0);
-			System.out.println("No matching display modes. Using largest: " + bestConfig.getWidth() + "x"
-					+ bestConfig.getHeight() + " for " + targetConfig.getWidth() + "x"
-					+ targetConfig.getHeight() + " stream");
+			LimeLog.info("No matching display modes. Using largest: " +bestConfig.getWidth()+"x"+bestConfig.getHeight()+
+					" for "+targetConfig.getWidth()+"x"+targetConfig.getHeight()+" stream");
+
 		}
 
 		return bestConfig;
@@ -185,6 +201,7 @@ public class StreamFrame extends JFrame {
 			return;
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		if (gd.isFullScreenSupported()) {
+			this.setResizable(false);
 			this.setUndecorated(true);
 			gd.setFullScreenWindow(this);
 
