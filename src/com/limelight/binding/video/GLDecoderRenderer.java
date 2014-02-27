@@ -48,7 +48,6 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     protected final GLCapabilities glcapabilities;
     protected final GLCanvas       glcanvas;
     private         FPSAnimator    animator;
-    public static Point WindowSize = new Point(1366, 768);
     protected       Texture        texture;
     protected       IntBuffer      bufferRGB;
     private Preferences prefs;
@@ -113,7 +112,14 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
 
         frame.setLayout(null);
         frame.add(glcanvas, 0, 0);
-        frame.setSize(WindowSize.x, WindowSize.y);
+        if (prefs.getFullscreen()){
+        	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        	 frame.setSize((int)screenSize.getWidth(),(int) screenSize.getHeight());
+        }
+        else{
+        	 frame.setSize(width, height);
+        }
+       
 
         animator = new FPSAnimator(glcanvas, targetFps);
     }

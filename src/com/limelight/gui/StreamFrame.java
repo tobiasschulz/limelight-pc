@@ -197,8 +197,6 @@ public class StreamFrame extends JFrame {
 	}
 
 	private void makeFullScreen(StreamConfiguration streamConfig) {
-		if (true == false)
-			return;
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		if (gd.isFullScreenSupported()) {
 			this.setResizable(false);
