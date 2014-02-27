@@ -90,12 +90,16 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
 
         // Add canvas to the frame
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    	int windowWidth, windowHeight;
         if (prefs.getFullscreen()){
-        	glcanvas.setSize((int)screenSize.getWidth(),(int) screenSize.getHeight());
+        	windowWidth = (int)screenSize.getWidth();
+        	windowHeight = (int) screenSize.getHeight();
         }
         else{
-        	glcanvas.setSize(screenSize.width * (screenSize.height-90)/screenSize.height, screenSize.height-90);
+        	windowWidth = screenSize.width * (screenSize.height-90)/screenSize.height;
+        	windowHeight = screenSize.height-90;
         }
+        glcanvas.setSize(windowWidth, windowHeight);
         glcanvas.addGLEventListener(this);
         
         for (MouseListener m : frame.getMouseListeners()) {
@@ -112,13 +116,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
 
         frame.setLayout(null);
         frame.add(glcanvas, 0, 0);
-        if (prefs.getFullscreen()){
-        	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        	 frame.setSize((int)screenSize.getWidth(),(int) screenSize.getHeight());
-        }
-        else{
-        	 frame.setSize(width, height);
-        }
+        frame.setSize(windowWidth, windowHeight);
        
 
         animator = new FPSAnimator(glcanvas, targetFps);
