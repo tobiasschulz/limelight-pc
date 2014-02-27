@@ -89,12 +89,12 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         System.out.println("Using OpenGL rendering");
 
         // Add canvas to the frame
+    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         if (prefs.getFullscreen()){
-        	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         	glcanvas.setSize((int)screenSize.getWidth(),(int) screenSize.getHeight());
         }
         else{
-        	glcanvas.setSize(width * (height-90)/height, height-90);
+        	glcanvas.setSize(screenSize.width * (screenSize.height-90)/screenSize.height, screenSize.height-90);
         }
         glcanvas.addGLEventListener(this);
         
