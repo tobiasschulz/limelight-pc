@@ -63,7 +63,7 @@ public abstract class PreferencesManager {
 		 * The possible resolutions for the stream
 		 */
 		public enum Resolution { RES_720_30("1280x720 (30Hz)"), RES_720_60("1280x720 (60Hz)"), 
-			RES_1080_30("1920x1080 (30Hz)"), RES_1080_60("1920x1080 (60Hz)");
+			RES_1080_30("1920x1080 (30Hz)"), RES_1080_60("1920x1080 (60Hz)"), RES_900_60("1440x900 (60Hz)");
 			public String name;
 			
 			/*

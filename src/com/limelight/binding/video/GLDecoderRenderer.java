@@ -59,14 +59,14 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         this.targetFps = redrawRate;
         this.width = width;
         this.height = height;
-
+       
 		// We only use one thread because each additional thread adds a frame of latency
 		int avcFlags = AvcDecoder.BILINEAR_FILTERING | AvcDecoder.LOW_LATENCY_DECODE;
 		int threadCount = 1;
 
         frame = (JFrame) renderTarget;
         graphics = frame.getGraphics();
-
+        glcanvas.setSize(frame.getWidth(), frame.getHeight());
         // Force the renderer to use a buffered image that's friendly with OpenGL
         avcFlags |= AvcDecoder.NATIVE_COLOR_ARGB;
         image = new BufferedImage(width, height,
@@ -83,7 +83,6 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         System.out.println("Using OpenGL rendering");
 
         // Add canvas to the frame
-        glcanvas.setSize(width, height);
         glcanvas.addGLEventListener(this);
         
         for (MouseListener m : frame.getMouseListeners()) {
@@ -218,7 +217,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         animator.stop();
     }
 
-	@Override
+	
 	public int getCapabilities() {
 		// TODO Auto-generated method stub
 		return 0;

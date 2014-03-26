@@ -76,6 +76,8 @@ public class Limelight implements NvConnectionListener {
 			return new StreamConfiguration(1920, 1080, 30);
 		case RES_1080_60:
 			return new StreamConfiguration(1920, 1080, 60);
+		case RES_900_60:
+			return new StreamConfiguration(1440, 900, 60);
 		default:
 			// this should never happen, if it does we want the NPE to occur so we know something is wrong
 			return null;
