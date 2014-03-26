@@ -47,6 +47,8 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     private         FPSAnimator    animator;
     
     public static Point WindowSize = new Point(1280, 680);
+    protected       Texture        texture;
+    protected       IntBuffer      bufferRGB;
 
     public GLDecoderRenderer() {
         GLProfile.initSingleton();
@@ -61,19 +63,20 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         this.targetFps = redrawRate;
         this.width = width;
         this.height = height;
-
-        // Two threads to ease the work, especially for higher resolutions and frame rates
-        int avcFlags = AvcDecoder.BILINEAR_FILTERING;
-        int threadCount = 2;
+       
+		// We only use one thread because each additional thread adds a frame of latency
+		int avcFlags = AvcDecoder.BILINEAR_FILTERING | AvcDecoder.LOW_LATENCY_DECODE;
+		int threadCount = 1;
 
         frame = (JFrame) renderTarget;
         graphics = frame.getGraphics();
-
+        glcanvas.setSize(frame.getWidth(), frame.getHeight());
         // Force the renderer to use a buffered image that's friendly with OpenGL
         avcFlags |= AvcDecoder.NATIVE_COLOR_ARGB;
         image = new BufferedImage(width, height,
                                   BufferedImage.TYPE_INT_ARGB);
         imageBuffer = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+        bufferRGB = IntBuffer.wrap(imageBuffer);
 
         int err = AvcDecoder.init(width, height, avcFlags, threadCount);
         if (err != 0) {
@@ -86,7 +89,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         // Add canvas to the frame
         glcanvas.setSize(WindowSize.x, WindowSize.y);
         glcanvas.addGLEventListener(this);
-
+        
         for (MouseListener m : frame.getMouseListeners()) {
             glcanvas.addMouseListener(m);
         }
@@ -131,11 +134,14 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     public void display(GLAutoDrawable glautodrawable) {
         // Decode the image
         boolean decoded = AvcDecoder.getRgbFrameInt(imageBuffer, imageBuffer.length);
+        if (!decoded) {
+        	return;
+        }
 
         GL2 gl = glautodrawable.getGL().getGL2();
 
         IntBuffer bufferRGB = IntBuffer.wrap(imageBuffer);
-        gl.glEnable(gl.GL_TEXTURE_2D);
+        gl.glEnable(GL.GL_TEXTURE_2D);
         // OpenGL only supports BGRA and RGBA, rather than ARGB or ABGR (from the buffer)
         // So we instruct it to read the packed RGB values in the appropriate (REV) order
         Texture texture = new Texture(gl,
@@ -144,8 +150,8 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
                                                       width,
                                                       height,
                                                       0,
-                                                      gl.GL_BGRA,
-                                                      gl.GL_UNSIGNED_INT_8_8_8_8_REV,
+                                                      GL.GL_BGRA,
+                                                      GL2GL3.GL_UNSIGNED_INT_8_8_8_8_REV,
                                                       false,
                                                       false,
                                                       true,
@@ -154,7 +160,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         texture.enable(gl);
         texture.bind(gl);
 
-        gl.glBegin(gl.GL_QUADS);
+        gl.glBegin(GL2GL3.GL_QUADS);
         // This flips the texture as it draws it, as the opengl coordinate system is different
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(-1.0f, 1.0f, 1.0f); // Bottom Left Of The Texture and Quad
@@ -172,7 +178,6 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
         texture.disable(gl);
         texture.destroy(gl);
 
-        long refreshTime = System.currentTimeMillis() - lastRender;
         lastRender = System.currentTimeMillis();
     }
 
@@ -226,5 +231,11 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
      public void stop() {
         animator.stop();
     }
+
+	
+	public int getCapabilities() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 }
 

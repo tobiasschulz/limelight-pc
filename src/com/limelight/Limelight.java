@@ -2,7 +2,6 @@ package com.limelight;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -92,6 +91,14 @@ public class Limelight implements NvConnectionListener {
 	 * Creates the main frame for the application.
 	 */
 	private static void createFrame() {
+		// Tell the user how to map the gamepad if it's a new install and there's no default for this platform
+		if (!PreferencesManager.hasExistingPreferences() &&
+			!System.getProperty("os.name").contains("Windows")) {
+			JOptionPane.showMessageDialog(null, "Gamepad mapping is not set. If you want to use a gamepad, "+
+			"click the Options menu and choose Gamepad Settings. After mapping your gamepad,"+
+			" it will work while streaming.", "Limelight", JOptionPane.INFORMATION_MESSAGE);
+		}
+		
 		MainFrame main = new MainFrame();
 		main.build();
 		limeFrame = main.getLimeFrame();
@@ -151,13 +158,11 @@ public class Limelight implements NvConnectionListener {
 	 */
 	public static void main(String args[]) {
 		// Redirect logging to a file if we're running from a JAR
-		if (LibraryHelper.isRunningFromJar()) {
+		if (LibraryHelper.isRunningFromJar() && args.length == 0) {
 			try {
-				System.setErr(new PrintStream(new File(SettingsManager.SETTINGS_DIR + File.separator
-						+ "error.log")));
-				System.setOut(new PrintStream(new File(SettingsManager.SETTINGS_DIR + File.separator
-						+ "output.log")));
-			} catch (IOException e) {}
+				LimeLog.setFileHandler(SettingsManager.SETTINGS_DIR + File.separator + "limelight.log");
+			} catch (IOException e) {
+			}
 		}
 
 		// fix the menu bar if we are running in osx
@@ -172,7 +177,7 @@ public class Limelight implements NvConnectionListener {
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			} catch (Exception e) {
-				System.out.println("Unable to set system platform look and feel.");
+				LimeLog.severe("Unable to set system platform look and feel.");
 				e.printStackTrace();
 				System.exit(2);
 			}
@@ -205,7 +210,7 @@ public class Limelight implements NvConnectionListener {
 		String host = null;
 		boolean fullscreen = false;
 		int resolution = 720;
-		int refresh = 30;
+		int refresh = 60;
 
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-host")) {
@@ -278,7 +283,7 @@ public class Limelight implements NvConnectionListener {
 	 *        the Stage that is starting
 	 */
 	public void stageStarting(Stage stage) {
-		System.out.println("Starting " + stage.getName());
+		LimeLog.info("Starting "+stage.getName());
 		streamFrame.showSpinner(stage);
 	}
 
@@ -337,7 +342,6 @@ public class Limelight implements NvConnectionListener {
 					streamFrame.dispose();
 					resumeSession();
 					// displayError("Connection Terminated", "The connection failed unexpectedly");
-
 				}
 			}).start();
 		}
@@ -357,6 +361,7 @@ public class Limelight implements NvConnectionListener {
 	 *        the message to show the user
 	 */
 	public void displayMessage(String message) {
+		streamFrame.dispose();
 		JOptionPane.showMessageDialog(limeFrame, message, "Limelight", JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -369,6 +374,11 @@ public class Limelight implements NvConnectionListener {
 	 *        the message to show the user
 	 */
 	public void displayError(String title, String message) {
+		streamFrame.dispose();
 		JOptionPane.showMessageDialog(limeFrame, message, title, JOptionPane.ERROR_MESSAGE);
+	}
+
+	public void displayTransientMessage(String message) {
+		// FIXME: Implement transient messages
 	}
 }

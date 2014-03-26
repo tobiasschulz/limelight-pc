@@ -3,6 +3,8 @@ package com.limelight.settings;
 import java.io.File;
 import java.io.Serializable;
 
+import com.limelight.LimeLog;
+
 /**
  * Manages user preferences
  * @author Diego Waxemberg
@@ -15,11 +17,20 @@ public abstract class PreferencesManager {
 	 * @param prefs the preferences to be written out
 	 */
 	public static void writePreferences(Preferences prefs) {
-		System.out.println("Writing Preferences");
+		LimeLog.info("Writing Preferences");
 		File prefFile = SettingsManager.getInstance().getSettingsFile();
 		
 		SettingsManager.writeSettings(prefFile, prefs);
 		cachedPreferences = prefs;
+	}
+	
+	/**
+	 * Checks if the preferences file exists
+	 * @return true if preferences exist
+	 */
+	public static boolean hasExistingPreferences() {
+		File prefFile = SettingsManager.getInstance().getSettingsFile();
+		return SettingsManager.readSettings(prefFile, Preferences.class) != null;
 	}
 	
 	/**
@@ -28,13 +39,13 @@ public abstract class PreferencesManager {
 	 */
 	public static Preferences getPreferences() {
 		if (cachedPreferences == null) {
-			System.out.println("Reading Preferences");
+			LimeLog.info("Reading Preferences");
 			File prefFile = SettingsManager.getInstance().getSettingsFile();
 			Preferences savedPref = (Preferences)SettingsManager.readSettings(prefFile, Preferences.class);
 			cachedPreferences = savedPref;
 		}
 		if (cachedPreferences == null) {
-			System.out.println("Unabled to get preferences, using default");
+			LimeLog.warning("Unabled to get preferences, using default");
 			cachedPreferences = new Preferences();
 			writePreferences(cachedPreferences);
 		}
@@ -52,7 +63,7 @@ public abstract class PreferencesManager {
 		 * The possible resolutions for the stream
 		 */
 		public enum Resolution { RES_720_30("1280x720 (30Hz)"), RES_720_60("1280x720 (60Hz)"), 
-			RES_1080_30("1920x1080 (30Hz)"), RES_1080_60("1920x1080 (60Hz)"), RES_900_60("1440x900 (60 Hz)");
+			RES_1080_30("1920x1080 (30Hz)"), RES_1080_60("1920x1080 (60Hz)"), RES_900_60("1440x900 (60Hz)");
 			public String name;
 			
 			/*
@@ -76,23 +87,26 @@ public abstract class PreferencesManager {
 		private boolean fullscreen;
 		private boolean readonly;
 		private String host;
+		private boolean useOpenGlRenderer;
 		
 		/**
-		 * constructs default preferences: 720p 30Hz fullscreen
+		 * constructs default preferences: 720p 60Hz fullscreen
 		 */
 		public Preferences() {
-			this(Resolution.RES_720_30, true, true);
+			this(Resolution.RES_720_60, true, false);
 		}
 		
 		/**
 		 * Constructs a preference with the specified values
 		 * @param res the <code>Resolution</code> to use
 		 * @param fullscreen whether to start the stream in fullscreen
+		 * @param useOpenGlRenderer whether to use the OpenGL renderer
 		 */
-		public Preferences(Resolution res, boolean fullscreen, boolean readonly) {
+		public Preferences(Resolution res, boolean fullscreen, boolean readonly, boolean useOpenGlRenderer) {
 			this.res = res;
 			this.fullscreen = fullscreen;
 			this.readonly = readonly;
+			this.useOpenGlRenderer = useOpenGlRenderer;
 			this.host = "192.168.224.151";
 		}
 		
@@ -135,6 +149,14 @@ public abstract class PreferencesManager {
 		public boolean getReadonly() {
 			return readonly;
 		}
+
+		/**
+		 * Gets whether to use the OpenGL renderer
+		 * @return the stored fullscreen mode
+		 */
+		public boolean getUseOpenGlRenderer() {
+			return useOpenGlRenderer;
+		}
 		
 		/**
 		 * Sets the resolution in this preference
@@ -158,6 +180,14 @@ public abstract class PreferencesManager {
 		 */
 		public void setReadonly(boolean readonly) {
 			this.readonly = readonly;
+		}
+
+		/**
+		 * Sets the OpenGL renderer use of this preference
+		 * @param useOpenGlRenderer whether to use OpenGL rendering
+		 */
+		public void setUseOpenGlRenderer(boolean useOpenGlRenderer) {
+			this.useOpenGlRenderer = useOpenGlRenderer;
 		}
 	}
 }
