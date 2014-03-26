@@ -93,7 +93,7 @@ public abstract class PreferencesManager {
 		 * constructs default preferences: 720p 60Hz fullscreen
 		 */
 		public Preferences() {
-			this(Resolution.RES_720_60, true, false);
+			this(Resolution.RES_720_60, true, true, true);
 		}
 		
 		/**
