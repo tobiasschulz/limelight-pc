@@ -61,7 +61,7 @@ public class Limelight implements NvConnectionListener {
 	 * Creates a connection to the host and starts up the stream.
 	 */
 	private void startUp(StreamConfiguration streamConfig, boolean fullscreen) {
-		streamFrame = new StreamFrame();
+		streamFrame = new StreamFrame("Limelight "+ PreferencesManager.getPreferences().getResolution());
 
 		conn = new NvConnection(host, this, streamConfig);
 		streamFrame.build(this, conn, streamConfig, fullscreen);
