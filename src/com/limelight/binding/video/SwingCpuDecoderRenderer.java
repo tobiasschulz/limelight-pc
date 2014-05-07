@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBufferInt;
@@ -24,16 +25,17 @@ import com.limelight.nvstream.av.video.cpu.AvcDecoder;
 public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 
 	private Thread rendererThread;
-	protected int targetFps;
-	protected int width, height;
 
-	protected Graphics graphics;
-	protected JFrame frame;
-	protected BufferedImage image;
+	private int targetFps;
+	private int width, height;
 
-	protected static final int DECODER_BUFFER_SIZE = 92*1024;
-	protected ByteBuffer decoderBuffer;
-
+	private JFrame frame;
+	private BufferedImage image;
+	private boolean dying;
+	
+	private static final int DECODER_BUFFER_SIZE = 92*1024;
+	private ByteBuffer decoderBuffer;
+	
 	// Only sleep if the difference is above this value
 	public static final int WAIT_CEILING_MS = 8;
 
@@ -99,7 +101,6 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 		}
 
 		frame = (JFrame)renderTarget;
-		graphics = frame.getGraphics();
 
         if (image == null) {
 			// The decoder renders to an RGB color model by default
@@ -122,8 +123,21 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 			public void run() {
 				long nextFrameTime = System.currentTimeMillis();
 				int[] imageBuffer = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-				while (!isInterrupted())
+				
+				frame.createBufferStrategy(2);
+				BufferStrategy strategy = frame.getBufferStrategy();
+				
+				if (strategy.getCapabilities().isPageFlipping()) {
+					LimeLog.info("Using page flipping for buffer swaps");
+				}
+				else {
+					LimeLog.info("Using blitting for buffer swaps");
+				}
+				
+				LimeLog.info("Front buffer accelerated? "+strategy.getCapabilities().getFrontBufferCapabilities().isAccelerated());
+				LimeLog.info("Back buffer accelerated? "+strategy.getCapabilities().getBackBufferCapabilities().isAccelerated());
+				
+				while (!isInterrupted() && !dying)
 				{
 					try {
                         delayFrame(nextFrameTime);
@@ -131,8 +145,37 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
                     } catch (InterruptedException e) {
 						return;
 					}
-
-                    renderFrame(imageBuffer);
+					
+					nextFrameTime = computePresentationTimeMs(targetFps);
+					
+					int sides = frame.getInsets().left + frame.getInsets().right;
+					int topBottom = frame.getInsets().top + frame.getInsets().bottom;
+					
+					double widthScale = (double)(frame.getWidth() - sides) / width;
+					double heightScale = (double)(frame.getHeight() - topBottom) / height;
+					double lowerScale = Math.min(widthScale, heightScale);
+					int newWidth = (int)(width * lowerScale);
+					int newHeight = (int)(height * lowerScale);
+					
+					int dx1 = 0;
+					int dy1 = 0;
+					if (frame.getWidth() > newWidth) {
+						dx1 = (frame.getWidth() + frame.getInsets().left - newWidth)/2;
+					}
+					if (frame.getHeight() > newHeight) {
+						dy1 = (frame.getHeight() + frame.getInsets().top - newHeight)/2;
+					}
+					
+					if (AvcDecoder.getRgbFrameInt(imageBuffer, imageBuffer.length)) {
+						do {
+							do {
+								Graphics g = strategy.getDrawGraphics();
+								g.drawImage(image, dx1, dy1, dx1+newWidth, dy1+newHeight, 0, 0, width, height, null);
+								g.dispose();
+							} while (strategy.contentsRestored());
+							strategy.show();
+						} while (strategy.contentsLost());
+					}
 				}
 			}
 		};
@@ -183,9 +226,8 @@ public class SwingCpuDecoderRenderer implements VideoDecoderRenderer {
 	/**
 	 * Stops the decoding and rendering of the video stream.
 	 */
-
-	 public void stop() {
-
+	public void stop() {
+		dying = true;
 		rendererThread.interrupt();
 
 		try {

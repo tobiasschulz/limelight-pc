@@ -2,10 +2,14 @@ package com.limelight;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.UIManager;
+
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.limelight.binding.LibraryHelper;
 import com.limelight.binding.PlatformBinding;
@@ -18,6 +22,7 @@ import com.limelight.nvstream.NvConnection;
 import com.limelight.nvstream.NvConnectionListener;
 import com.limelight.nvstream.StreamConfiguration;
 import com.limelight.nvstream.av.video.VideoDecoderRenderer;
+import com.limelight.nvstream.http.NvHTTP;
 import com.limelight.settings.PreferencesManager;
 import com.limelight.settings.SettingsManager;
 import com.limelight.settings.PreferencesManager.Preferences;
@@ -56,7 +61,7 @@ public class Limelight implements NvConnectionListener {
 	 * Creates a connection to the host and starts up the stream.
 	 */
 	private void startUp(StreamConfiguration streamConfig, boolean fullscreen) {
-		streamFrame = new StreamFrame("Stream");
+		streamFrame = new StreamFrame();
 
 		conn = new NvConnection(host, this, streamConfig);
 		streamFrame.build(this, conn, streamConfig, fullscreen);
@@ -71,15 +76,15 @@ public class Limelight implements NvConnectionListener {
 	private static StreamConfiguration createConfiguration(Resolution res) {
 		switch (res) {
 		case RES_720_30:
-			return new StreamConfiguration(1280, 720, 30);
+			return new StreamConfiguration(1280, 720, 30, 10000);
 		case RES_720_60:
-			return new StreamConfiguration(1280, 720, 60);
+			return new StreamConfiguration(1280, 720, 60, 10000);
 		case RES_1080_30:
-			return new StreamConfiguration(1920, 1080, 30);
+			return new StreamConfiguration(1920, 1080, 30, 15000);
 		case RES_1080_60:
-			return new StreamConfiguration(1920, 1080, 60);
+			return new StreamConfiguration(1920, 1080, 60, 25000);
 		case RES_900_60:
-			return new StreamConfiguration(1440, 900, 60);
+			return new StreamConfiguration(1440, 900, 60, 25000);
 		default:
 			// this should never happen, if it does we want the NPE to occur so
 			// we know something is wrong
@@ -93,12 +98,12 @@ public class Limelight implements NvConnectionListener {
 	private static void createFrame() {
 		// Tell the user how to map the gamepad if it's a new install and there's no default for this platform
 		if (!PreferencesManager.hasExistingPreferences() &&
-			!System.getProperty("os.name").contains("Windows")) {
+				!System.getProperty("os.name").contains("Windows")) {
 			JOptionPane.showMessageDialog(null, "Gamepad mapping is not set. If you want to use a gamepad, "+
-			"click the Options menu and choose Gamepad Settings. After mapping your gamepad,"+
-			" it will work while streaming.", "Limelight", JOptionPane.INFORMATION_MESSAGE);
+					"click the Options menu and choose Gamepad Settings. After mapping your gamepad,"+
+					" it will work while streaming.", "Limelight", JOptionPane.INFORMATION_MESSAGE);
 		}
-		
+
 		MainFrame main = new MainFrame();
 		main.build();
 		limeFrame = main.getLimeFrame();
@@ -165,22 +170,10 @@ public class Limelight implements NvConnectionListener {
 			}
 		}
 
-		// fix the menu bar if we are running in osx
+		//fix the menu bar if we are running in osx
 		if (System.getProperty("os.name").contains("Mac OS X")) {
-			// take the menu bar off the jframe
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-
 			// set the name of the application menu item
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", "Limelight");
-
-		} else {
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch (Exception e) {
-				LimeLog.severe("Unable to set system platform look and feel.");
-				e.printStackTrace();
-				System.exit(2);
-			}
 		}
 
 		GamepadListener.getInstance().addDeviceListener(new Gamepad());
@@ -205,7 +198,7 @@ public class Limelight implements NvConnectionListener {
 		}
 	}
 
-	// TODO: make this less jank
+	//TODO: make this less jank
 	private static void parseCommandLine(String[] args) {
 		String host = null;
 		boolean fullscreen = false;
@@ -213,12 +206,23 @@ public class Limelight implements NvConnectionListener {
 		int refresh = 60;
 
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-host")) {
+			if (args[i].equals("-pair")) {
+				if (i + 1 < args.length){
+					host = args[i+1];
+					System.out.println("Trying to pair to: " + host);
+					String msg = pair(host);
+					System.out.println("Pairing: " + msg);
+					System.exit(0);
+				} else {
+					System.err.println("Syntax error: hostname or ip address expected after -pair");
+					System.exit(4);
+				}
+			} else if (args[i].equals("-host")) {
 				if (i + 1 < args.length) {
 					host = args[i + 1];
 					i++;
 				} else {
-					System.out.println("Syntax error: hostname or ip address expected after -host");
+					System.err.println("Syntax error: hostname or ip address expected after -host");
 					System.exit(3);
 				}
 			} else if (args[i].equals("-fs")) {
@@ -352,6 +356,53 @@ public class Limelight implements NvConnectionListener {
 		if (n == JOptionPane.YES_OPTION) {
 			createInstance(lastHost);
 		}
+	}
+
+	public static String pair(final String host) {
+		String message = "";
+		String macAddress;
+		try {
+			macAddress = NvConnection.getMacAddressString();
+		} catch (SocketException e) {
+			e.printStackTrace();
+			message = "An error occured trying to get this system's MAC address";
+			return message;
+		}
+
+		if (macAddress == null) {
+			message = "Couldn't find a MAC address";
+			LimeLog.severe(message);
+			return message;
+		}
+
+		NvHTTP httpConn;
+		try {
+			httpConn = new NvHTTP(InetAddress.getByName(host),
+					macAddress, PlatformBinding.getDeviceName());
+			try {
+				if (httpConn.getPairState()) {
+					message = "Already paired";
+				}
+				else {
+					int session = httpConn.getSessionId();
+					if (session == 0) {
+						message = "Pairing was declined by the target";
+					}
+					else {
+						message = "Pairing was successful";
+					}
+				}
+			} catch (IOException e) {
+				message = e.getMessage();
+			} catch (XmlPullParserException e) {
+				message = e.getMessage();
+			}
+		} catch (UnknownHostException e1) {
+			message = "Failed to resolve host";
+		}
+
+		return message;
+
 	}
 
 	/**
