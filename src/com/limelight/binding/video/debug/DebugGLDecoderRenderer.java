@@ -113,7 +113,7 @@ public class DebugGLDecoderRenderer extends GLDecoderRenderer {
 
         renderer.beginRendering(glautodrawable.getWidth(), glautodrawable.getHeight());
         renderer.setColor(0.0f, 1.0f, 0.0f, 1.0f);
-        renderer.draw(info, 0, glautodrawable.getHeight() - 12);
+//        renderer.draw(info, 0, glautodrawable.getHeight() - 12);
         renderer.setColor(1.0f, 1.0f, 1.0f, 1.0f);
         renderer.endRendering();
 
