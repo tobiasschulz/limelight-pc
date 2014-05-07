@@ -25,7 +25,7 @@ public class PlatformBinding {
      */
     public static VideoDecoderRenderer getVideoDecoderRenderer() {
     	if (PreferencesManager.getPreferences().getUseOpenGlRenderer()) {
-		return new DebugGLDecoderRenderer();
+		return new GLDecoderRenderer();
     	}
     	else {
     		return new SwingCpuDecoderRenderer();
