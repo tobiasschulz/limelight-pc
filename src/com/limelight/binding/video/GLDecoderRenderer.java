@@ -46,7 +46,7 @@ public class GLDecoderRenderer implements VideoDecoderRenderer, GLEventListener 
     protected final GLCanvas       glcanvas;
     private         FPSAnimator    animator;
     
-    public static Point WindowSize = new Point(1280, 680);
+    public static Point WindowSize = new Point(1344, 840);
     protected       Texture        texture;
     protected       IntBuffer      bufferRGB;
 
