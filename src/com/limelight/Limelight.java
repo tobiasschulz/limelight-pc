@@ -56,11 +56,11 @@ public class Limelight implements NvConnectionListener {
 	/*
 	 * Creates a connection to the host and starts up the stream.
 	 */
-	private void startUp(StreamConfiguration streamConfig, boolean fullscreen) {
+	private void startUp(StreamConfiguration streamConfig, boolean fullscreen, boolean readonly) {
 		streamFrame = new StreamFrame();
 
 		conn = new NvConnection(host, this, streamConfig);
-		streamFrame.build(this, conn, streamConfig, fullscreen);
+		streamFrame.build(this, conn, streamConfig, fullscreen, readonly);
 		conn.start(PlatformBinding.getDeviceName(), streamFrame,
 				VideoDecoderRenderer.FLAG_PREFER_QUALITY,
 				PlatformBinding.getAudioRenderer(),
@@ -144,7 +144,7 @@ public class Limelight implements NvConnectionListener {
 		Preferences prefs = PreferencesManager.getPreferences();
 		StreamConfiguration streamConfig = createConfiguration(prefs.getResolution());
 
-		limelight.startUp(streamConfig, prefs.getFullscreen());
+		limelight.startUp(streamConfig, prefs.getFullscreen(), prefs.getReadonly());
 	}
 
 	/**
@@ -193,6 +193,7 @@ public class Limelight implements NvConnectionListener {
 	private static void parseCommandLine(String[] args) {
 		String host = null;
 		boolean fullscreen = false;
+		boolean readonly = true;
 		int resolution = 720;
 		int refresh = 60;
 
@@ -255,7 +256,7 @@ public class Limelight implements NvConnectionListener {
 		StreamConfiguration streamConfig = createConfiguration(streamRes);
 
 		Limelight limelight = new Limelight(host);
-		limelight.startUp(streamConfig, fullscreen);
+		limelight.startUp(streamConfig, fullscreen, readonly);
 		COMMAND_LINE_LAUNCH = true;
 	}
 

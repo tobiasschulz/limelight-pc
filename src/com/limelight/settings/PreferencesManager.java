@@ -86,6 +86,7 @@ public abstract class PreferencesManager {
 		
 		private Resolution res;
 		private boolean fullscreen;
+		private boolean readonly;
 		private String host;
 		
 		/**
@@ -146,6 +147,22 @@ public abstract class PreferencesManager {
 		 */
 		public void setResolution(Resolution res) {
 			this.res = res;
+		}
+		
+		/**
+		 * Gets whether to use readonly
+		 * @return the stored readonly mode
+		 */
+		public boolean getReadonly() {
+			return readonly;
+		}
+		
+		/**
+		 * Sets the resolution in this preference
+		 * @param res the resolution to save
+		 */
+		public void setReadonly(boolean readonly) {
+			this.readonly = readonly;
 		}
 		
 		/**

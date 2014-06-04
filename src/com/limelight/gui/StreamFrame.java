@@ -78,11 +78,13 @@ public class StreamFrame extends JFrame {
 	 * @param streamConfig the configurations for this frame
 	 * @param fullscreen if the frame should be made fullscreen
 	 */
-	public void build(Limelight limelight, NvConnection conn, StreamConfiguration streamConfig, boolean fullscreen) {
+	public void build(Limelight limelight, NvConnection conn, StreamConfiguration streamConfig, boolean fullscreen, boolean readonly) {
 		this.limelight = limelight;
-		
-		keyboard = new KeyboardHandler(conn, this);
-		mouse = new MouseHandler(conn, this);
+
+		if (!readonly) {
+			keyboard = new KeyboardHandler(conn, this);
+			mouse = new MouseHandler(conn, this);
+		}
 
 		this.setBackground(Color.BLACK);
 		this.setFocusableWindowState(true);
@@ -92,9 +94,11 @@ public class StreamFrame extends JFrame {
 		Container contentPane = this.getContentPane();
 		
 		renderingSurface = new JPanel(false);
-		renderingSurface.addKeyListener(keyboard);
-		renderingSurface.addMouseListener(mouse);
-		renderingSurface.addMouseMotionListener(mouse);
+		if (!readonly) {
+			renderingSurface.addKeyListener(keyboard);
+			renderingSurface.addMouseListener(mouse);
+			renderingSurface.addMouseMotionListener(mouse);
+		}
 		renderingSurface.setBackground(Color.BLACK);
 		renderingSurface.setIgnoreRepaint(true);
 		renderingSurface.setFocusable(true);

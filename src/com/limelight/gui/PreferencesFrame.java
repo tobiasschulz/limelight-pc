@@ -24,6 +24,7 @@ public class PreferencesFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JComboBox resolution;
 	private JCheckBox fullscreen;
+	private JCheckBox readonly;
 	private Preferences prefs;
 	
 	/**
@@ -32,7 +33,7 @@ public class PreferencesFrame extends JFrame {
 	 */
 	public PreferencesFrame() {
 		super("Preferences");
-		this.setSize(200, 100);
+		this.setSize(200, 200);
 		this.setResizable(false);
 		this.setAlwaysOnTop(true);
 		prefs = PreferencesManager.getPreferences();
@@ -60,6 +61,9 @@ public class PreferencesFrame extends JFrame {
 			fullscreen.setEnabled(false);
 			fullscreen.setText("Fullscreen (Unsupported)");
 		}
+		
+		readonly = new JCheckBox("Readonly");
+		readonly.setSelected(prefs.getReadonly());
 	
 		Box resolutionBox = Box.createHorizontalBox();
 		resolutionBox.add(Box.createHorizontalGlue());
@@ -71,10 +75,17 @@ public class PreferencesFrame extends JFrame {
 		fullscreenBox.add(fullscreen);
 		fullscreenBox.add(Box.createHorizontalGlue());
 		
+		Box readonlyBox = Box.createHorizontalBox();
+		readonlyBox.add(Box.createHorizontalGlue());
+		readonlyBox.add(readonly);
+		readonlyBox.add(Box.createHorizontalGlue());
+		
 		mainPanel.add(Box.createVerticalStrut(10));
 		mainPanel.add(resolutionBox);
 		mainPanel.add(Box.createVerticalStrut(5));
 		mainPanel.add(fullscreenBox);
+		mainPanel.add(Box.createVerticalStrut(5));
+		mainPanel.add(readonly);
 		mainPanel.add(Box.createVerticalGlue());
 		
 		this.addWindowListener(new WindowAdapter() {
@@ -101,7 +112,7 @@ public class PreferencesFrame extends JFrame {
 	 */
 	private boolean prefsChanged() {
 		return (prefs.getResolution() != resolution.getSelectedItem()) ||
-				(prefs.getFullscreen() != fullscreen.isSelected());
+				(prefs.getFullscreen() != fullscreen.isSelected()) || (prefs.getReadonly() != readonly.isSelected());
 	}
 	
 	/*
@@ -109,6 +120,7 @@ public class PreferencesFrame extends JFrame {
 	 */
 	private void writePreferences() {
 		prefs.setFullscreen(fullscreen.isSelected());
+		prefs.setReadonly(readonly.isSelected());
 		prefs.setResolution((Resolution)resolution.getSelectedItem());
 		PreferencesManager.writePreferences(prefs);
 	}
