@@ -62,7 +62,8 @@ public abstract class PreferencesManager {
 		/**
 		 * The possible resolutions for the stream
 		 */
-		public enum Resolution { RES_720_30("1280x720 (30Hz)"), RES_720_60("1280x720 (60Hz)"), 
+		public enum Resolution { RES_720_30("1280x720 (30Hz)"), RES_720_60("1280x720 (60Hz)"),
+			RES_900_60("1440x900 (60Hz)"),
 			RES_1080_30("1920x1080 (30Hz)"), RES_1080_60("1920x1080 (60Hz)");
 			public String name;
 			
@@ -93,7 +94,7 @@ public abstract class PreferencesManager {
 		 * windowed will be default for other platforms
 		 */
 		public Preferences() {
-			this(Resolution.RES_720_60, System.getProperty("os.name", "").contains("Windows"));
+			this(Resolution.RES_900_60, System.getProperty("os.name", "").contains("Windows"));
 		}
 		
 		/**

@@ -77,6 +77,8 @@ public class Limelight implements NvConnectionListener {
 			return new StreamConfiguration(1280, 720, 30);
 		case RES_720_60:
 			return new StreamConfiguration(1280, 720, 60);
+		case RES_900_60:
+			return new StreamConfiguration(1440, 900, 60);
 		case RES_1080_30:
 			return new StreamConfiguration(1920, 1080, 30);
 		case RES_1080_60:
@@ -220,6 +222,8 @@ public class Limelight implements NvConnectionListener {
 				resolution = 720;
 			} else if (args[i].equals("-1080")) {
 				resolution = 1080;
+			} else if (args[i].equals("-900")) {
+				resolution = 900;
 			} else if (args[i].equals("-30fps")) {
 				refresh = 30;
 			} else if (args[i].equals("-60fps")) {
@@ -244,6 +248,8 @@ public class Limelight implements NvConnectionListener {
 			streamRes = Resolution.RES_1080_30;
 		} else if (resolution == 1080 && refresh == 60) {
 			streamRes = Resolution.RES_1080_60;
+		} else if (resolution == 900 && refresh == 60) {
+			streamRes = Resolution.RES_900_60;
 		}
 
 		StreamConfiguration streamConfig = createConfiguration(streamRes);
