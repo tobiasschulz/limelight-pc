@@ -130,6 +130,7 @@ public class StreamFrame extends JFrame {
 		}
 
 		hideCursor();
+		freeMouse();
 	}
 	
 	private ArrayList<DisplayMode> getDisplayModesByAspectRatio(DisplayMode[] configs, double aspectRatio) {
